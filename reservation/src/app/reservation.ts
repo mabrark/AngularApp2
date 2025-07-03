@@ -1,4 +1,4 @@
-export interface Contact {
+export interface Reservation {
   contactID?: number;
   firstName: string;
   lastName: string;
