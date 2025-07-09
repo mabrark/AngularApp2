@@ -1,6 +1,6 @@
 <div id="theList">
   <h2>Reservation</h2>
-  <form #f="ngForm" name="reservationForm" (submit)="addareservation(f)">
+  <form #f="ngForm" name="reservationForm" (submit)="addReservation(f)">
 
     <div class="form-group">
       <label>First Name</label>
@@ -77,15 +77,31 @@
     </div>
 
     <div class="form-group">
-      <label>Birth Date</label>
-      <input type="date"
-        class="form-control"
-        name="dob"
-        [(ngModel)]="reservation.area"
-        #contactModel="ngModel"
-        required>
+      <label>Area</label>
+      <select class="form-control"
+          name="area"
+          [(ngModel)]="reservation.area"
+          #areaModel="ngModel"
+          required>
+    <option value="" disabled selected>Select Area</option>
+    <option *ngFor="let area of areas" [value]="area">{{ area }}</option>
+  </select>
       <span class="help-block danger" *ngIf="reservationModel.errors?.['required'] && reservationModel.touched">
-        The date of birth is required
+        The Area selection is required
+      </span>
+    </div>
+    <div class="form-group">
+      <label>time</label>
+      <select class="form-control"
+      name="time"
+      [(ngModel)]="reservation.time"
+      #timeModel="ngModel"
+      required>
+<option value="" disabled selected>Select Time</option>
+<option *ngFor="let slot of timeSlots" [value]="slot">{{ slot }}</option>
+</select>
+      <span class="help-block danger" *ngIf="reservationModel.errors?.['required'] && reservationModel.touched">
+        The time slot selection is required
       </span>
     </div>
 
@@ -99,23 +115,40 @@
         (change)="onFileSelected($event)" />      
     </div>
 
+    <div class="form-group">
+      <label>Date</label>
+      <input type="Date"
+        class="form-control"
+        name="date"
+        [(ngModel)]="reservation.date"
+        #contactModel="ngModel"
+        required>
+      <span class="help-block danger" *ngIf="reservationModel.errors?.['required'] && reservationModel.touched">
+        The Date selection is required
+      </span>
+    </div>
+
     <button
       class="btn btn-primary btn-sm"
       [disabled]="f.invalid">
       Add Reservation
     </button>
   </form>
-
   <div>
-    <div *ngFor="let reservations;let i = index;" class="row">
+
+    <div id="theList">
+      <h2>Reservation List</h2>    
+  
+      <div>
+    <div *ngFor="let item of reservations; let i = index;" class="row">
 
       <!-- <div class="col-2">
         <input type="text"
-          [(ngModel)]="reservations[i].contactID"
+          [(ngModel)]="reservations[i].reservationID"
           class="form-control"
           required
-          #contactID="ngModel"
-          [ngClass]="{ 'is-invalid': contactID.touched && contactID.invalid }">
+          #reservationID="ngModel"
+          [ngClass]="{ 'is-invalid': reservationID.touched && reservationID.invalid }">
       </div> -->
 
       <div class="col-2">
@@ -158,21 +191,22 @@
           <img src="http://localhost/AngularApp2/reservationapi/uploads/{{item.imageName}}" width="75" height="75" alt="{{item.imageName}}" />
       </div>
 
-     <!-- <div class="col-2">
+      <div class="col-2">
         <input type="button"
           value="Edit"
           class="btn btn-success btn-sm"
           [disabled]="firstName.invalid || lastName.invalid || emailAddress.invalid || phone.invalid"
-          (click)="editReservation(firstName, lastName, emailAddress, phone, item.contactID)">
+          (click)="editReservation(firstName, lastName, emailAddress, phone, item.reservationID)">
 
-        <input type="button"
-          value="Delete"
-          class="btn btn-danger btn-sm"
-          (click)="deleteReservation(item.contactID? item.contactID:0)">
-      </div>-->
+      </div>
 
     </div>
   </div>
+
+  <div id="links">
+    <button class="btn btn-sm btn-dark text-white" routerLink="/about">
+        About Us
+    </button>
 
 
 </div>

@@ -1,9 +1,10 @@
 export interface Reservation {
-  contactID?: number;
+  reservationID?: number;
   firstName: string;
   lastName: string;
   emailAddress?: string;
   phone?: string;
+  status?: string;
   area?: string;
   time?: string;
   imageName?: string;

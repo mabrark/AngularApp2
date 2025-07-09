@@ -9,7 +9,7 @@ import { Reservation } from './reservation';
   providedIn: 'root',
 })
 export class ReservationService {
-  baseUrl = 'http://localhost/reservationangular/reservationapi';
+  baseUrl = 'http://localhost/AngulorApp2/reservationapi';
 
   constructor(private http: HttpClient) {}
 
@@ -29,8 +29,8 @@ export class ReservationService {
     return this.http.put(`${this.baseUrl}/edit`, { data: reservation });
   }
 
-  delete(contactID: any): Observable<any> {
-    const params = new HttpParams().set('contactID', contactID.toString());
+  delete(reservationID: any): Observable<any> {
+    const params = new HttpParams().set('reservationID', reservationID.toString());
     return this.http.delete(`${this.baseUrl}/delete`, { params: params });
   }
 }
