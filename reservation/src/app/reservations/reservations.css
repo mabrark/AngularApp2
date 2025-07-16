@@ -1,5 +1,4 @@
 #theForm, #theList, #links {
-  width: 70%;
   padding: 10px;
   border: 2px solid black;
   margin: 10px;
@@ -23,4 +22,8 @@
 }
 .form-group > label {
   width: 10%;
+}
+#links > button {    
+  width: 20%;
+  margin-left: 10px;
 }

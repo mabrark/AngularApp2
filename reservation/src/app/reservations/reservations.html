@@ -106,16 +106,6 @@
     </div>
 
     <div class="form-group">
-      <label>Upload Image</label>
-      <input type="file"
-        class="form-control"
-        name="imageName"
-        [(ngModel)]="reservation.imageName"
-        #imageName="ngModel"
-        (change)="onFileSelected($event)" />      
-    </div>
-
-    <div class="form-group">
       <label>Date</label>
       <input type="Date"
         class="form-control"
@@ -126,6 +116,16 @@
       <span class="help-block danger" *ngIf="reservationModel.errors?.['required'] && reservationModel.touched">
         The Date selection is required
       </span>
+    </div>
+
+    <div class="form-group">
+      <label>Upload Image</label>
+      <input type="file"
+        class="form-control"
+        name="imageName"
+        [(ngModel)]="reservation.imageName"
+        #imageName="ngModel"
+        (change)="onFileSelected($event)" />      
     </div>
 
     <button
@@ -204,6 +204,9 @@
   </div>
 
   <div id="links">
+    <button class="btn btn-sm btn-primary" routerLink="/add">
+      Add Reservation
+    </button>
     <button class="btn btn-sm btn-dark text-white" routerLink="/about">
         About Us
     </button>

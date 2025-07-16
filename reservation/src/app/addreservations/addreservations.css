@@ -1,0 +1,58 @@
+/* General container styling for forms and lists */
+#theForm, #theList, #links {
+  padding: 10px;
+  border: 2px solid black;
+  margin: 10px auto;
+  max-width: 800px;
+  background-color: #ffffff;
+  border-radius: 8px;
+}
+
+/* Improved input styles for text, email, date, and file inputs */
+.form-group input[type="text"],
+.form-group input[type="email"],
+.form-group input[type="date"],
+.form-group input[type="file"],
+.form-group select {
+  width: 100%;
+  padding: 10px;
+  margin: 5px 0 20px 0;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  display: block;
+  box-sizing: border-box;
+}
+
+/* Label styling */
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+}
+
+/* Container box (wrapping the full form) */
+.container {
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  padding: 20px;
+  margin-top: 30px;
+  background-color: #f9f9f9;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Buttons */
+button {
+  margin-right: 10px;
+  padding: 10px 20px;
+  border: none;
+  background-color: #007bff;
+  color: white;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #0056b3;
+}

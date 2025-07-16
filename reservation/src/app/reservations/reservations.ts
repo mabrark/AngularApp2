@@ -23,11 +23,11 @@ export class Reservations implements OnInit {
     lastName: '',
     emailAddress: '',
     phone: '',
+    status: '',
     area: '',
     time: '',
-    imageName: '',
     date: 0,
-    status: '',
+    imageName: '',
     reservationID: 0
   };
 
@@ -112,8 +112,12 @@ export class Reservations implements OnInit {
   addReservation(f: NgForm) {
     this.resetAlerts();
 
-    this.uploadFile();
-
+    if (this.selectedFile) {
+      this.reservation.imageName = this.selectedFile.name;
+      this.uploadFile();
+    } else {
+      this.reservation.imageName = ''; // Let backend handle default placeholder
+    }
     this.reservationService.add(this.reservation).subscribe(
       (res: Reservation) => {
         this.reservations.push(res);
@@ -128,21 +132,23 @@ export class Reservations implements OnInit {
   editReservation(firstName: any, lastName: any, emailAddress: any, phone: any, reservationID: any) {
     this.resetAlerts();
 
-    console.log(firstName.value);
-    console.log(lastName.value);
-    console.log(emailAddress.value);
-    console.log(phone.value);
-    console.log(+reservationID);
+    const formData = new FormData();
+    formData.append('firstName', firstName.value);
+    formData.append('lastName', lastName.value);
+    formData.append('emailAddress', emailAddress.value);
+    formData.append('phone', phone.value);
+    formData.append('reservationID', reservationID.toString());
 
-    this.reservationService
-      .edit({
-        firstName: firstName.value,
-        lastName: lastName.value,
-        emailAddress: emailAddress.value,
-        phone: phone.value,
-        reservationID: +reservationID
-      })
-      .subscribe(
+    if (this.selectedFile) {
+      formData.append('image', this.selectedFile);
+      formData.append('imageName', this.selectedFile.name);
+    } else {
+      formData.append('imageName', 'placeholder_100.jpg');
+    }
+
+  
+
+    this.reservationService.edit(formData).subscribe(
         (res) => {
           this.cdr.detectChanges();
           this.success = 'Successfully edited';
@@ -151,8 +157,28 @@ export class Reservations implements OnInit {
       );
   }
 
+  deleteReservation(reservationID: number)
+  {
+    this.resetAlerts();
+
+    this.reservationService.delete(reservationID)
+      .subscribe(
+        (res) => {
+          this.reservations = this.reservations.filter( function (item) {
+            return item['reservationID'] && +item['reservationID'] !== +reservationID;
+          });
+          this.cdr.detectChanges(); // <--- force UI update
+          this.success = "Deleted successfully";
+        },
+          (err) => (
+            this.error = err.message
+          )
+      );
+  }
+
   uploadFile(): void {
-    if (!this.selectedFile) {
+    if (!this.selectedFile) 
+    {
       return;
     }
 
@@ -160,14 +186,15 @@ export class Reservations implements OnInit {
     formData.append('image', this.selectedFile);
 
     this.http.post('http://localhost/AngularApp2/reservationapi/upload', formData).subscribe(
-      (response) => console.log('File uploaded successfully:', response),
-      (error) => console.error('File upload failed:', error)
+      response => console.log('File uploaded successfully:', response),
+      error => console.error('File upload failed:', error)
     );
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
+    if (input.files && input.files.length > 0) 
+    {
       this.selectedFile = input.files[0];
     }
   }

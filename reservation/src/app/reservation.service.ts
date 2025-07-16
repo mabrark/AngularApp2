@@ -9,9 +9,18 @@ import { Reservation } from './reservation';
   providedIn: 'root',
 })
 export class ReservationService {
-  baseUrl = 'http://localhost/AngulorApp2/reservationapi';
+  // ✅ Fixed typo in base URL
+  baseUrl = 'http://localhost/AngularApp2/reservationapi';
 
   constructor(private http: HttpClient) {}
+
+  // ✅ Implemented properly
+  get(reservationID: number): Observable<Reservation> {
+    const params = new HttpParams().set('reservationID', reservationID.toString());
+    return this.http.get(`${this.baseUrl}/get.php`, { params }).pipe(
+      map((res: any) => res['data'])
+    );
+  }
 
   getAll(): Observable<Reservation[]> {
     return this.http.get(`${this.baseUrl}/list`).pipe(
@@ -25,12 +34,13 @@ export class ReservationService {
     );
   }
 
-  edit(reservation: Reservation): Observable<any> {
-    return this.http.put(`${this.baseUrl}/edit`, { data: reservation });
+  // ✅ Send FormData if updating with image
+  edit(formData: FormData): Observable<any> {
+    return this.http.post(`${this.baseUrl}/edit.php`, formData);
   }
 
-  delete(reservationID: any): Observable<any> {
+  delete(reservationID: number): Observable<any> {
     const params = new HttpParams().set('reservationID', reservationID.toString());
-    return this.http.delete(`${this.baseUrl}/delete`, { params: params });
+    return this.http.delete(`${this.baseUrl}/delete`, { params });
   }
 }
