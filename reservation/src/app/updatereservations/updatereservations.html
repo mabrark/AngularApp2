@@ -1,5 +1,8 @@
 <div class="container">
-  <h2>Edit Reservation</h2>
+  <div class="toolbar">
+  <h2>{{ userName }}'s UpdateReservation</h2>
+  <button (click)="authService.logout()" class="btn btn-sm btn-danger">Logout</button>
+  </div>
   <form #f="ngForm" (ngSubmit)="updateReservation(f)">
 
     <div class="form-group">
