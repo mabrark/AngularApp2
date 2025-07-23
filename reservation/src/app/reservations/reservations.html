@@ -1,4 +1,4 @@
-<div id="theList">
+<div id="theForm">
   <h2>Reservation Form</h2>
   <form #f="ngForm" name="reservationForm" (submit)="addReservation(f)">
 
@@ -136,10 +136,12 @@
   </form>
   <div>
 
-    <div id="theList">
-      <h2>Reservation List</h2>    
+    <div id="theList" class="reservation-list-container">
+      <div class="toolbar">
+      <h2>{{ userName }}'s Reservation List</h2> 
+      <button (click)="authService.logout()" class="btn btn-sm btn-danger">Logout</button>
+  </div>    
   
-      <div>
     <div *ngFor="let item of reservations; let i = index;" class="row">
       <div class="col-2">{{ item.firstName }}</div>
       <div class="col-2">{{ item.lastName }}</div>
@@ -153,6 +155,8 @@
         <button class="btn btn-success btn-sm" [routerLink]="['/edit', item.reservationID]">Edit</button>
         <button class="btn btn-danger btn-sm" (click)="deleteReservation(item.reservationID ? item.reservationID : 0)">Delete</button>
       </div>
+    </div>
+   </div>   
 
       <!-- <div class="col-2">
         <input type="text"
@@ -215,7 +219,7 @@
     </div>
   </div>
 
-  <div id="links">
+  <div id="links" class="mt-4 text-center">
     <button class="btn btn-sm btn-primary" routerLink="/add">
       Add Reservation
     </button>
