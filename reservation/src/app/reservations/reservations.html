@@ -1,5 +1,5 @@
 <div id="theList">
-  <h2>Reservation</h2>
+  <h2>Reservation Form</h2>
   <form #f="ngForm" name="reservationForm" (submit)="addReservation(f)">
 
     <div class="form-group">
@@ -141,6 +141,18 @@
   
       <div>
     <div *ngFor="let item of reservations; let i = index;" class="row">
+      <div class="col-2">{{ item.firstName }}</div>
+      <div class="col-2">{{ item.lastName }}</div>
+      <div class="col-2">{{ item.emailaddress }}</div>
+      <div class="col-2">{{ item.phone }}</div>
+      <div class="col-2">
+        <img src="http://localhost/AngularApp2/reservationapi/uploads/{{item.imageName}}" width="75" height="75" alt="{{item.imageName}}" />
+      </div>
+
+      <div class="col-2">
+        <button class="btn btn-success btn-sm" [routerLink]="['/edit', item.reservationID]">Edit</button>
+        <button class="btn btn-danger btn-sm" (click)="deleteReservation(item.reservationID ? item.reservationID : 0)">Delete</button>
+      </div>
 
       <!-- <div class="col-2">
         <input type="text"

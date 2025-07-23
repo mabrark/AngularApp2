@@ -1,17 +1,18 @@
-import { Component } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { RouterModule, Router } from '@angular/router';
-
 import { Reservation } from '../reservation';
-
+import { ReservationService } from '../reservation.service';
+import { RouterModule, Router } from '@angular/router';
+import { Auth } from '../service/auth';
 @Component({
   standalone: true,
   selector: 'app-addreservations',
   templateUrl: './addreservations.html',
   styleUrls: ['./addreservations.css'],
-  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule]
+  imports: [CommonModule, FormsModule, HttpClientModule, RouterModule],
+  providers: [ReservationService]
 })
 export class Addreservations {
   reservation: Reservation = {
@@ -40,7 +41,7 @@ export class Addreservations {
   timeSlots = ['9:00am - 12:00pm', '12:00pm - 3:00pm', '3:00pm - 6:00pm'];
 
 
-  constructor(private http: HttpClient, private router: Router) {}
+  constructor(private reservationService: ReservationService, private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {}
 
   addReservation(form: NgForm) {
     this.resetAlerts();
@@ -55,31 +56,46 @@ export class Addreservations {
     formData.append('time', this.reservation.time || '');
     formData.append('date', this.reservation.date?.toString() || '');
 
-    if (this.selectedFile) {
-      formData.append('image', this.selectedFile);
-      formData.append('imageName', this.selectedFile.name);
-    } else {
-      formData.append('imageName', 'placeholder_100.jpg');
+    if (!this.reservation.imageName) {
+      this.reservation.imageName = 'placeholder_100.jpg';
     }
-    
 
-    this.http.post('http://localhost/AngularApp2/reservationapi/add.php', formData).subscribe({
-      next: (res) => {
+    this.reservationService.add(this.reservation).subscribe(
+      (res: Reservation) => {
         this.success = 'Successfully created';
-        form.resetForm();
+
+        // Only upload file AFTER successful reservation creation
+        if (this.selectedFile && this.reservation.imageName != 'placeholder_100.jpg') {
+          this.uploadFile();
+        }
+        form.reset();
         this.router.navigate(['/reservations']);
       },
-      error: (err) => {
-        console.error(err);
-        this.error = 'Error while saving reservation';
+      (err) => {
+        this.error = err.error?.message || err.message || 'Error occurred';
+        this.cdr.detectChanges();
       }
-    });
+    );
+  }
+
+  uploadFile(): void {
+    if (!this.selectedFile) return;
+
+    const formData = new FormData();
+    formData.append('image', this.selectedFile);
+    
+
+    this.http.post('http://localhost/AngularApp2/reservationapi/add.php', formData).subscribe(
+      response => console.log('File uploaded successfully:', response),
+      error => console.error('File upload failed:', error)
+    );
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
+      this.reservation.imageName = this.selectedFile.name;
     }
   }
 

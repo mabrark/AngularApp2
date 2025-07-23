@@ -4,7 +4,8 @@ require 'connect.php';
 $reservations = [];
 $sql = "SELECT reservationID, firstName, lastName, emailAddress, phone, status, area, time, date, imageName FROM reservations";
 
-if ($result = mysqli_query($con, $sql)) {
+if ($result = mysqli_query($con, $sql)) 
+{
     while ($row = mysqli_fetch_assoc($result)) {
         $reservations[] = $row;
     }
