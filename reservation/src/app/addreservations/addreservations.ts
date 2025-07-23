@@ -5,7 +5,8 @@ import { HttpClient, HttpClientModule } from '@angular/common/http';
 import { Reservation } from '../reservation';
 import { ReservationService } from '../reservation.service';
 import { RouterModule, Router } from '@angular/router';
-import { Auth } from '../service/auth';
+import { Auth } from '../services/auth';
+
 @Component({
   standalone: true,
   selector: 'app-addreservations',
@@ -41,7 +42,13 @@ export class Addreservations {
   timeSlots = ['9:00am - 12:00pm', '12:00pm - 3:00pm', '3:00pm - 6:00pm'];
 
 
-  constructor(private reservationService: ReservationService, private http: HttpClient, private router: Router, private cdr: ChangeDetectorRef) {}
+  constructor(
+    private reservationService: ReservationService,
+    public authservice: Auth, 
+    private http: HttpClient, 
+    private router: Router, 
+    private cdr: ChangeDetectorRef
+  ) {}
 
   addReservation(form: NgForm) {
     this.resetAlerts();
