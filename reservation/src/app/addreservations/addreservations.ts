@@ -26,7 +26,9 @@ export class Addreservations {
     time: '',
     date: 0,
     imageName: '',
-    reservationID: 0
+    reservationID: 0,
+    timeSlot: '',
+    complete: false
   };
 
   selectedFile: File | null = null;

@@ -1,11 +1,11 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Reservation } from '../reservation';
 import { ReservationService } from '../reservation.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
-import { ChangeDetectorRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
+import { Auth } from '../services/auth';
 
 @Component({
   standalone: true,
@@ -13,11 +13,11 @@ import { RouterModule } from '@angular/router';
   imports: [HttpClientModule, CommonModule, FormsModule, RouterModule],
   providers: [ReservationService],
   templateUrl: './reservations.html',
-  styleUrl: './reservations.css'
+  styleUrls: ['./reservations.css']
 })
 export class Reservations implements OnInit {
   title = 'Reservation';
-  reservations: any[] = [];
+  public reservations: Reservation[] = [];
   reservation: Reservation = {
     firstName: '',
     lastName: '',
@@ -28,11 +28,14 @@ export class Reservations implements OnInit {
     time: '',
     date: 0,
     imageName: '',
-    reservationID: 0
+    reservationID: 0,
+    timeSlot: '',
+    complete: false
   };
 
   error = '';
   success = '';
+  userName = '';
   selectedFile: File | null = null;
 
   name: string = '';
@@ -45,52 +48,19 @@ export class Reservations implements OnInit {
 
   constructor(
     private reservationService: ReservationService,
+    public authService: Auth,
     private http: HttpClient,
     private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit(): void {
     this.getReservations();
+    this.userName = localStorage.getItem('username') || 'Guest';
+    this.cdr.detectChanges();
   }
 
   get username(): string {
     return 'Guest';
-  }
-
-  get reservationCount(): number {
-    return this.reservations.length;
-  }
-
-  makeReservation() {
-    if (this.name && this.area && this.timeSlot) {
-      const duplicate = this.reservations.find(
-        (r) => r.area === this.area && r.timeSlot === this.timeSlot
-      );
-
-      if (duplicate) {
-        alert('Time slot already booked for this area.');
-        return;
-      }
-
-      this.reservations.push({
-        name: this.name,
-        area: this.area,
-        timeSlot: this.timeSlot,
-        complete: false
-      });
-
-      this.name = '';
-      this.area = '';
-      this.timeSlot = '';
-    } else {
-      alert('Please fill all fields.');
-    }
-  }
-
-  addreservation(description: string) {
-    if (description) {
-      this.reservations.push({ timeslot: description, complete: false });
-    }
   }
 
   getReservations(): void {
@@ -112,18 +82,29 @@ export class Reservations implements OnInit {
   addReservation(f: NgForm) {
     this.resetAlerts();
 
+
+    const duplicate = this.reservations.find(
+      (r) => r.area === this.reservation.area && r.date === this.reservation.date && r.timeSlot === this.reservation.timeSlot
+    );
+
+    if (duplicate) {
+      this.error = 'A reservation already exists for this area, date, and time slot.';
+      return;
+    }
+
     if (this.selectedFile) {
       this.reservation.imageName = this.selectedFile.name;
       this.uploadFile();
     } else {
-      this.reservation.imageName = ''; // Let backend handle default placeholder
+      this.reservation.imageName = '';
     }
+
     this.reservationService.add(this.reservation).subscribe(
       (res: Reservation) => {
         this.reservations.push(res);
         this.success = 'Successfully created';
-
         f.resetForm();
+        this.selectedFile = null;
       },
       (err) => (this.error = err.message)
     );
@@ -146,39 +127,30 @@ export class Reservations implements OnInit {
       formData.append('imageName', 'placeholder_100.jpg');
     }
 
-  
-
     this.reservationService.edit(formData).subscribe(
-        (res) => {
-          this.cdr.detectChanges();
-          this.success = 'Successfully edited';
-        },
-        (err) => (this.error = err.message)
-      );
+      (res) => {
+        this.cdr.detectChanges();
+        this.success = 'Successfully edited';
+      },
+      (err) => (this.error = err.message)
+    );
   }
 
-  deleteReservation(reservationID: number)
-  {
+  deleteReservation(reservationID: number) {
     this.resetAlerts();
 
-    this.reservationService.delete(reservationID)
-      .subscribe(
-        (res) => {
-          this.reservations = this.reservations.filter( function (item) {
-            return item['reservationID'] && +item['reservationID'] !== +reservationID;
-          });
-          this.cdr.detectChanges(); // <--- force UI update
-          this.success = "Deleted successfully";
-        },
-          (err) => (
-            this.error = err.message
-          )
-      );
+    this.reservationService.delete(reservationID).subscribe(
+      (res) => {
+        this.reservations = this.reservations.filter((item) => item['reservationID'] && +item['reservationID'] !== +reservationID);
+        this.cdr.detectChanges();
+        this.success = 'Deleted successfully';
+      },
+      (err) => (this.error = err.message)
+    );
   }
 
   uploadFile(): void {
-    if (!this.selectedFile) 
-    {
+    if (!this.selectedFile) {
       return;
     }
 
@@ -186,15 +158,14 @@ export class Reservations implements OnInit {
     formData.append('image', this.selectedFile);
 
     this.http.post('http://localhost/AngularApp2/reservationapi/upload', formData).subscribe(
-      response => console.log('File uploaded successfully:', response),
-      error => console.error('File upload failed:', error)
+      (response) => console.log('File uploaded successfully:', response),
+      (error) => console.error('File upload failed:', error)
     );
   }
 
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) 
-    {
+    if (input.files && input.files.length > 0) {
       this.selectedFile = input.files[0];
     }
   }

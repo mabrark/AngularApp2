@@ -1,6 +1,13 @@
 import { bootstrapApplication } from '@angular/platform-browser';
-import { appConfig } from './app/app.config';
-import { App } from './app/app';
+import { Reservations } from './app/reservations/reservations';
+import { provideHttpClient } from '@angular/common/http';
+import { provideRouter } from '@angular/router';
+import { routes } from './app/app.routes'; // if you have routes
 
-bootstrapApplication(App, appConfig)
-  .catch((err) => console.error(err));
+import 'zone.js';
+bootstrapApplication(Reservations, {
+  providers: [
+    provideHttpClient(),
+    provideRouter(routes)
+  ]
+});

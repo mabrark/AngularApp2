@@ -19,7 +19,9 @@ export class Updatereservations implements OnInit {
   reservationID!: number;
   reservation: Reservation = {
     firstName: '', lastName: '', emailAddress: '',
-    phone: '', status: '', area: '', time: '', date: 0, imageName: '', reservationID: 0
+    phone: '', status: '', area: '', time: '', date: 0, imageName: '', reservationID: 0,
+    timeSlot: '',
+    complete: false
   };
 
   success = '';

@@ -8,6 +8,7 @@ export interface Reservation {
   area: string;
   time: string;
   date: number;
+  timeSlot: string;
   imageName: string;
-  
+  complete: boolean;
 }
