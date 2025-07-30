@@ -34,14 +34,15 @@ export class Addreservations {
   selectedFile: File | null = null;
   error = '';
   success = '';
-
-  name: string = '';
+  userName: string = '';
+  maxDate: string = '';
   area: string = '';
   timeSlot: string = '';
   showComplete: boolean = false;
 
   areas = ['Bruce Mill', 'Rockwood', 'Rattray', 'Rattlesnake point'];
   timeSlots = ['9:00am - 12:00pm', '12:00pm - 3:00pm', '3:00pm - 6:00pm'];
+  types: { typeID: number; reservationType: string; }[] | undefined;
 
 
   constructor(
@@ -51,6 +52,23 @@ export class Addreservations {
     private router: Router, 
     private cdr: ChangeDetectorRef
   ) {}
+
+  ngOnInit(): void {
+    this.loadTypes();
+    const today = new Date();
+    const yyyy = today.getFullYear();
+    const mm = String(today.getMonth() + 1).padStart(2, '0');
+    const dd = String(today.getDate()).padStart(2, '0');
+    this.maxDate = `${yyyy}-${mm}-${dd}`;
+    this.userName = localStorage.getItem('username') || 'Guest';
+  }
+  loadTypes(): void {
+    this.http.get<{ typeID: number, reservationType: string }[]>('http://localhost/AngularApp2/reservationapi/types.php')
+      .subscribe({
+        next: (data) => this.types = data,
+        error: () => this.error = 'Failed to load reservation types'
+      });
+  }
 
   addReservation(form: NgForm) {
     this.resetAlerts();

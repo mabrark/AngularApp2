@@ -34,6 +34,7 @@ export class Updatereservations implements OnInit {
 
   areas = ['Bruce Mill', 'Rockwood', 'Rattray', 'Rattlesnake point'];
   timeSlots = ['9:00am - 12:00pm', '12:00pm - 3:00pm', '3:00pm - 6:00pm'];
+  types: any[] | undefined;
 
   constructor(
     private route: ActivatedRoute,
@@ -50,6 +51,7 @@ export class Updatereservations implements OnInit {
     const mm = String(today.getMonth() + 1).padStart(2, '0');
     const dd = String(today.getDate()).padStart(2, '0');
     this.maxDate = `${yyyy}-${mm}-${dd}`;
+
     this.reservationID = +this.route.snapshot.paramMap.get('id')!;
     this.reservationService.get(this.reservationID).subscribe({
       next: (data: Reservation) => {
@@ -60,6 +62,13 @@ export class Updatereservations implements OnInit {
       },
       error: () => this.error = 'Error loading reservation.'
     });
+
+    this.http.get<any[]>('http://localhost/AngularApp2/reservationapi/types.php')
+      .subscribe({
+        next: (data) => this.types = data,
+        error: () => this.error = 'Error loading reservation types.'
+      });
+      
     this.userName = localStorage.getItem('username') || 'Guest';
   }
 

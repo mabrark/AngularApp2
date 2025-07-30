@@ -1,9 +1,10 @@
-import { Component, OnInit, ChangeDetectorRef } from '@angular/core';
+import { Component, OnInit, } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule, NgForm } from '@angular/forms';
 import { Reservation } from '../reservation';
 import { ReservationService } from '../reservation.service';
 import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { ChangeDetectorRef } from '@angular/core';
 import { RouterModule } from '@angular/router';
 import { Auth } from '../services/auth';
 
@@ -36,6 +37,7 @@ export class Reservations implements OnInit {
   error = '';
   success = '';
   userName = '';
+
   selectedFile: File | null = null;
 
   name: string = '';
@@ -103,11 +105,12 @@ export class Reservations implements OnInit {
       (res: Reservation) => {
         this.reservations.push(res);
         this.success = 'Successfully created';
-        f.resetForm();
+        f.reset();
         this.selectedFile = null;
       },
       (err) => (this.error = err.message)
     );
+    this.cdr.detectChanges();
   }
 
   editReservation(firstName: any, lastName: any, emailAddress: any, phone: any, reservationID: any) {

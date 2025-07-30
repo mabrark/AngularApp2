@@ -1,8 +1,8 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { Auth } from '../../services/auth';
 import { Router } from '@angular/router';
 import { CommonModule } from '@angular/common';
-import { HttpClient, HttpClientModule } from '@angular/common/http';
+import { HttpClientModule } from '@angular/common/http';
 import { RouterModule } from '@angular/router';
 import { FormsModule, NgForm } from '@angular/forms';
 
@@ -19,41 +19,28 @@ export class Register {
   emailAddress = '';
   errorMessage = '';
   successMessage = '';
+  confirmPassword!: string;
 
-  constructor(private auth: Auth, private router: Router) {}
+  constructor(private auth: Auth, private router: Router, private cdr: ChangeDetectorRef) {}
 
-  register() {
-    const trimmedUsername = this.userName.trim();
-    const trimmedPassword = this.password.trim();
-    const trimmedEmail = this.emailAddress.trim();
-  
-    // Basic front-end validation
-    if (!trimmedUsername || !trimmedPassword || !trimmedEmail) {
-      this.errorMessage = 'All fields are required.';
-      this.successMessage = '';
+  register(form: NgForm) {
+    if (this.password !== this.confirmPassword) {
+      this.errorMessage = 'Passwords do not match.';
+      this.cdr.detectChanges();
       return;
     }
-  
-    // Call backend registration
-    this.auth.register({
-      userName: trimmedUsername,
-      password: trimmedPassword,
-      emailAddress: trimmedEmail
-    }).subscribe({
+    if (form.invalid) return;
+
+    this.auth.register({ userName: this.userName, password: this.password, emailAddress: this.emailAddress })
+     .subscribe({
       next: res => {
-        if (res.success) {
-          this.successMessage = 'Registration successful. Please log in.';
-          this.errorMessage = '';
-          setTimeout(() => this.router.navigate(['/login']), 1500);
-        } else {
-          this.errorMessage = res.message;
-          this.successMessage = '';
-        }
+        this.successMessage = 'Registeration successful! You can now login. ';
+        this.router.navigate(['/login']);
       },
-      error: () => {
-        this.errorMessage = 'Server error during registration.';
-        this.successMessage = '';
+      error: err => {
+        this.errorMessage = err.error?.message || 'Registeration failed.';
+        this.cdr.detectChanges();
       }
-    });
+     });
   }
 }
