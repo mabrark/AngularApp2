@@ -47,7 +47,7 @@ export class Addreservations {
 
   constructor(
     private reservationService: ReservationService,
-    public authservice: Auth, 
+    public authService: Auth, 
     private http: HttpClient, 
     private router: Router, 
     private cdr: ChangeDetectorRef
