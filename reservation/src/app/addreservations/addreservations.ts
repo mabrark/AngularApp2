@@ -55,6 +55,20 @@ export class Addreservations {
   addReservation(form: NgForm) {
     this.resetAlerts();
 
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(this.reservation.emailAddress??'')) {
+      this.error = 'Please enter a valid email address.';
+      this.cdr.detectChanges();
+      return;
+    }
+
+    const phoneRegex = /^(\(\d{3}\)\s|\d{3}-)\d{3}-\d{4}$/;
+    if (!phoneRegex.test(this.reservation.phone??'')) {
+      this.error = 'Please enter a valid phone number.';
+      this.cdr.detectChanges();
+      return;
+    }
+
     const formData = new FormData();
     formData.append('firstName', this.reservation.firstName);
     formData.append('lastName', this.reservation.lastName);
@@ -76,6 +90,7 @@ export class Addreservations {
         // Only upload file AFTER successful reservation creation
         if (this.selectedFile && this.reservation.imageName != 'placeholder_100.jpg') {
           this.uploadFile();
+          this.cdr.detectChanges();
         }
         form.reset();
         this.router.navigate(['/reservations']);
