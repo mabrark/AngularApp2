@@ -1,5 +1,8 @@
 <?php
 require 'connect.php';
+header('Content-Type: application/json');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 $postdata = file_get_contents("php://input");
 
@@ -27,6 +30,22 @@ $area          = mysqli_real_escape_string($con, trim($_POST['area']));
 $time          = mysqli_real_escape_string($con, trim($_POST['time']));
 $date          = mysqli_real_escape_string($con, trim($_POST['date']));
 $imageName     = isset($_FILES['image']['name']) ? $_FILES['image']['name'] : 'placeholder_100.jpg';
+
+$origimg = str_replace('\\', '/', $imageName);
+    $new = basename($origimg);
+    if (empty($new)) {
+        $new = 'placeholder_100.jpg';
+    }
+
+    // ✅ Allowed image extensions
+    $allowedExt = ['jpg', 'jpeg', 'png', 'gif'];
+    $ext = strtolower(pathinfo($new, PATHINFO_EXTENSION));
+    if ($new !== 'placeholder_100.jpg' && !in_array($ext, $allowedExt)) {
+        http_response_code(400);
+        echo json_encode(['message' => 'Invalid image format. Only JPG, PNG, and GIF allowed.']);
+        exit;
+    }
+
 
 // Check for duplicate reservation
 $checkDuplicate = "SELECT 1 FROM reservations WHERE area = '$area' AND time = '$time' AND date = '$date'";

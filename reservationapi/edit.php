@@ -1,5 +1,8 @@
 <?php
 require 'connect.php';
+header('Content-Type: application/json');
+ini_set('display_errors', 1);
+error_reporting(E_ALL);
 
 // Sanitize and validate inputs
 $reservationID = isset($_POST['reservationID']) ? (int)$_POST['reservationID'] : 0;
@@ -36,31 +39,50 @@ $date = mysqli_real_escape_string($con, $date);
 
 $imageName = $originalImageName;
 
+$emailCheckQuery = "SELECT reservationID FROM reservations WHERE emailAddress = '$emailAddress' AND reservationID != $reservationID LIMIT 1";
+$emailCheckResult = mysqli_query($con, $emailCheckQuery);
+if ($emailCheckResult && mysqli_num_rows($emailCheckResult) > 0) {
+    http_response_code(409);
+    echo json_encode(['error' => 'Email address already exists.']);
+    exit;
+}
+
 // Check if a new image is uploaded
 if (isset($_FILES['image']) && $_FILES['image']['error'] === UPLOAD_ERR_OK) {
-    $fileTmpPath = $_FILES['image']['tmp_name'];
-    $fileName = $_FILES['image']['name'];
-    $uploadFileDir = './uploads/';
-    $dest_path = $uploadFileDir . $fileName;
+    $uploadFileDir = 'uploads/';
+    $newImageName = basename($_FILES['image']['name'])
 
-    if (move_uploaded_file($fileTmpPath, $dest_path)) {
-        $imageName = $fileName;
+    $allowedTypes = ['jpg', 'jpeg', 'png', 'gif'];
+    $ext = strtolower(pathinfo($newImageName, PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowedTypes)) {
+        http_response_code(400);
+        echo json_encode(['error' => 'Invalid image type. Allowed: jpg, jpeg, png, gif.']);
+        exit;
+    }
 
-        // Delete old image if it's not a placeholder
-        if ($originalImageName !== 'placeholder_100.jpg') {
-            $oldImagePath = $uploadFileDir . $originalImageName;
-            if (file_exists($oldImagePath)) {
-                unlink($oldImagePath);
-            }
+    if ($newImageName !== 'placeholder_100.jpg') {
+        $imageCheckQuery = "SELECT reservationID FROM reservations WHERE imageName = '$newImageName' AND reservationID != $reservationID LIMIT 1";
+        $imageCheckResult = mysqli_query($con, $imageCheckQuery);
+        if ($imageCheckResult && mysqli_num_rows($imageCheckResult) > 0) {
+            http_response_code(409);
+            echo json_encode(['error' => 'Image name already exists.']);
+            exit;
         }
+    }
+
+    $targetFilePath = $uploadDir . $newImageName;
+    if (move_uploaded_file($_FILES['image']['tmp_name'], $targetFilePath)) {
+        if (!empty($originalImageName) && $originalImageName !== 'placeholder_100.jpg' && file_exists($uploadDir . $originalImageName)) {
+            unlink($uploadDir . $originalImageName);
+        }
+        $imageName = $newImageName;
     } else {
         http_response_code(500);
-        echo json_encode(['error' => 'Failed to move uploaded file.']);
+        echo json_encode(['error' => 'Failed to upload image.']);
         exit;
     }
 }
 
-$imageName = mysqli_real_escape_string($con, $imageName);
 
 // ✅ FIXED: Removed incorrect single quotes around column names
 $sql = "UPDATE `reservations` SET 

@@ -11,27 +11,30 @@ error_reporting(E_ALL);
 require 'connect.php';
 
 $reservations = [];
-
-// Check DB connection
-if (!$con) {
-    http_response_code(500);
-    echo json_encode(['error' => 'Database connection failed']);
-    exit;
-}
-
 // SQL query
 $sql = "SELECT reservationID, firstName, lastName, emailAddress, phone, status, area, time, date, imageName FROM reservations";
 
-$result = mysqli_query($con, $sql);
+if ($result = mysqli_query($con, $sql))
+{
+    $count = 0;
+    while ($row = mysqli_fetch_assoc($result)) 
+    {
+        $reservations[$count]['reservationID'] = $row['reservationID'];
+        $reservations[$count]['firstName'] = $row['firstName'];
+        $reservations[$count]['lastName'] = $row['lastName'];
+        $reservations[$count]['email'] = $row['email'];
+        $reservations[$count]['phone'] = $row['phone'];
+        $reservations[$count]['status'] = $row['status'];
+        $reservations[$count]['area'] = $row['area'];
+        $reservations[$count]['time'] = $row['time'];
+        $reservations[$count]['date'] = $row['date'];
 
-// Check if query succeeded
-if ($result) {
-    while ($row = mysqli_fetch_assoc($result)) {
-        $reservations[] = $row;
+        $count++;
     }
+
     echo json_encode(['data' => $reservations]);
-} else {
-    http_response_code(500);
-    echo json_encode(['error' => 'Query failed: ' . mysqli_error($con)]);
-}
+ } 
+ else {
+    http_response_code(404);
+ }
 ?>
